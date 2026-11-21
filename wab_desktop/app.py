@@ -150,6 +150,13 @@ def main() -> None:
             QWidget,
         )
     except ImportError as exc:
+        if "--self-test" in sys.argv:
+            import traceback
+
+            Path("desktop-self-test.log").write_text(
+                traceback.format_exc(),
+                encoding="utf-8",
+            )
         raise SystemExit(TEXT["en"]["python_needed"]) from exc
 
     class StudioWindow(QMainWindow):
