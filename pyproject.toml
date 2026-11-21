@@ -75,7 +75,7 @@ include = ["shared*", "wab_archiver*", "wab_viewer*", "wab_desktop*"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["shared", "wab_archiver", "wab_viewer", "tests"]
+src = ["shared", "wab_archiver", "wab_viewer", "wab_desktop", "tests"]
 
 [tool.ruff.lint]
 select = [
