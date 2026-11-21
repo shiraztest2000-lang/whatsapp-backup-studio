@@ -20,8 +20,14 @@ TEXT = {
         "ios": "iPhone / iOS backup",
         "restore": "Restore (Android only)",
         "db": "Encrypted msgstore database",
+        "db_label": "Database file:",
         "media": "WhatsApp folder (must contain Media/)",
+        "media_label": "Media source folder:",
         "key": "64-character encryption key",
+        "key_label": "Encryption key:",
+        "ios_backup_label": "iPhone backup folder:",
+        "archive_label": "Archive output folder:",
+        "restore_source_label": "Archive to restore:",
         "ios_backup": "Local iPhone backup folder",
         "archive": "Archive output folder",
         "restore_source": "Existing Android archive folder",
@@ -68,8 +74,14 @@ TEXT = {
         "ios": "پشتیبان آیفون / iOS",
         "restore": "بازگردانی (فقط اندروید)",
         "db": "فایل دیتابیس رمزگذاری‌شده msgstore",
+        "db_label": "فایل دیتابیس:",
         "media": "پوشه WhatsApp (باید شامل Media باشد)",
+        "media_label": "پوشه رسانه:",
         "key": "کلید رمزگذاری ۶۴ کاراکتری",
+        "key_label": "کلید رمزگذاری:",
+        "ios_backup_label": "پوشه بکاپ آیفون:",
+        "archive_label": "پوشه مقصد آرشیو:",
+        "restore_source_label": "آرشیو برای بازگردانی:",
         "ios_backup": "پوشه بکاپ محلی آیفون",
         "archive": "پوشه مقصد پشتیبان",
         "restore_source": "پوشه آرشیو اندروید موجود",
@@ -181,6 +193,8 @@ def main() -> None:
             self.tabs.addTab(self.restore, "")
             layout.addWidget(self.tabs)
 
+            self.output_label = QLabel()
+            layout.addWidget(self.output_label)
             self.output_row, self.output_path = self._path_row("archive folder", True)
             layout.addWidget(self.output_row)
             for field in (
@@ -251,25 +265,31 @@ def main() -> None:
             page = QWidget()
             form = QFormLayout(page)
             row, self.android_db = self._path_row("msgstore.db.crypt14 / crypt15", False)
-            form.addRow("", row)
+            self.android_db_label = QLabel()
+            form.addRow(self.android_db_label, row)
             row, self.android_root = self._path_row("WhatsApp folder containing Media/", True)
-            form.addRow("", row)
+            self.android_root_label = QLabel()
+            form.addRow(self.android_root_label, row)
             self.android_key = QLineEdit()
             self.android_key.setEchoMode(QLineEdit.EchoMode.Password)
-            form.addRow("", self.android_key)
+            self.android_key_label = QLabel()
+            form.addRow(self.android_key_label, self.android_key)
             return page
 
         def _make_ios_tab(self):
             page = QWidget()
             form = QFormLayout(page)
             row, self.ios_backup = self._path_row("Finder / Apple Devices / iTunes backup", True)
-            form.addRow("", row)
+            self.ios_backup_label = QLabel()
+            form.addRow(self.ios_backup_label, row)
             return page
 
         def _make_restore_tab(self):
             page = QWidget()
             form = QVBoxLayout(page)
             row, self.restore_source = self._path_row("Existing archive folder", True)
+            self.restore_source_label = QLabel()
+            form.addWidget(self.restore_source_label)
             form.addWidget(row)
             self.restore_note = QLabel()
             self.restore_note.setWordWrap(True)
@@ -290,6 +310,12 @@ def main() -> None:
             self.tabs.setTabText(0, self.tr("android"))
             self.tabs.setTabText(1, self.tr("ios"))
             self.tabs.setTabText(2, self.tr("restore"))
+            self.android_db_label.setText(self.tr("db_label"))
+            self.android_root_label.setText(self.tr("media_label"))
+            self.android_key_label.setText(self.tr("key_label"))
+            self.ios_backup_label.setText(self.tr("ios_backup_label"))
+            self.output_label.setText(self.tr("archive_label"))
+            self.restore_source_label.setText(self.tr("restore_source_label"))
             self.android_db.setPlaceholderText(self.tr("db"))
             self.android_root.setPlaceholderText(self.tr("media"))
             self.android_key.setPlaceholderText(self.tr("key"))
