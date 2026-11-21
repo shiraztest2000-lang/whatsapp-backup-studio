@@ -69,6 +69,12 @@ jobs:
         run: |
           Copy-Item PORTABLE_README.md dist/portable/PORTABLE_README.md
           Compress-Archive -Path dist/portable/WhatsAppBackupStudio,dist/portable/wab-archiver,dist/portable/wab-viewer,dist/portable/platform-tools,dist/portable/PORTABLE_README.md -DestinationPath dist/WhatsAppBackupStudio-Windows-Portable.zip -CompressionLevel Optimal
+      - name: Smoke test packaged desktop UI
+        shell: pwsh
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          & dist/portable/WhatsAppBackupStudio/WhatsAppBackupStudio.exe --self-test
+          if ($LASTEXITCODE -ne 0) { throw "Desktop UI smoke test failed" }
       - name: Smoke test packaged command-line helpers
         shell: pwsh
         run: |
