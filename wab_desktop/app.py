@@ -14,7 +14,7 @@ TEXT = {
     "en": {
         "title": "WhatsApp Backup Studio",
         "heading": "WhatsApp Backup Studio",
-        "note": "Your backup data stays on this computer. Work on a COPY of your phone backup, never on live device files.",
+        "note": "Your backup data stays on this computer. Work on a COPY of your phone backup, never on live device files. Android dry-run may still write a decrypted database into the output folder.",
         "language": "Language",
         "android": "Android backup",
         "ios": "iPhone / iOS backup",
@@ -62,7 +62,7 @@ TEXT = {
     "fa": {
         "title": "استودیو پشتیبان واتساپ",
         "heading": "استودیو پشتیبان واتساپ",
-        "note": "اطلاعات بکاپ روی همین رایانه می‌ماند. همیشه از یک کپی بکاپ استفاده کنید، نه فایل‌های زنده گوشی.",
+        "note": "اطلاعات بکاپ روی همین رایانه می‌ماند. همیشه از یک کپی بکاپ استفاده کنید، نه فایل‌های زنده گوشی. پیش‌نمایش اندروید ممکن است دیتابیس رمزگشایی‌شده را در پوشه خروجی بنویسد.",
         "language": "زبان",
         "android": "پشتیبان اندروید",
         "ios": "پشتیبان آیفون / iOS",
