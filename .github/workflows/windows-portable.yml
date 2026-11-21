@@ -52,7 +52,7 @@ jobs:
       - name: Build desktop application
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onedir --windowed --name WhatsAppBackupStudio --distpath dist/portable --workpath build/gui desktop_entry.py --collect-all wab_desktop --collect-all PySide6
+          python -m PyInstaller --noconfirm --clean --onedir --windowed --name WhatsAppBackupStudio --distpath dist/portable --workpath build/gui desktop_entry.py --hidden-import PySide6.QtCore --hidden-import PySide6.QtGui --hidden-import PySide6.QtWidgets --collect-all wab_desktop --collect-all PySide6 --collect-all shiboken6
       - name: Build archiver helper
         shell: pwsh
         run: |
