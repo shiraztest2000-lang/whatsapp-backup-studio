@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+
 def test_android_args_include_dry_run_and_optional_media_root() -> None:
     from wab_desktop.commands import build_archiver_args
 
