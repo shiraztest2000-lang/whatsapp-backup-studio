@@ -7,8 +7,11 @@ def test_android_args_include_dry_run_and_optional_media_root() -> None:
     from wab_desktop.commands import build_archiver_args
 
     args = build_archiver_args(
-        "android", "C:/Backup/msgstore.db.crypt15", "C:/Archive",
-        e2e_key="a" * 64, wa_root="C:/Backup/WhatsApp",
+        "android",
+        "C:/Backup/msgstore.db.crypt15",
+        "C:/Archive",
+        e2e_key="a" * 64,
+        wa_root="C:/Backup/WhatsApp",
     )
     assert args[:2] == ["archive", "--msgstore"]
     assert "--e2e-key" in args
