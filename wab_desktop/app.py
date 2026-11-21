@@ -111,9 +111,20 @@ def main() -> None:
         from PySide6.QtCore import QProcess, Qt
         from PySide6.QtGui import QTextCursor
         from PySide6.QtWidgets import (
-            QApplication, QComboBox, QFileDialog, QFormLayout, QHBoxLayout, QLabel,
-            QLineEdit, QMainWindow, QMessageBox, QPlainTextEdit, QPushButton,
-            QTabWidget, QVBoxLayout, QWidget,
+            QApplication,
+            QComboBox,
+            QFileDialog,
+            QFormLayout,
+            QHBoxLayout,
+            QLabel,
+            QLineEdit,
+            QMainWindow,
+            QMessageBox,
+            QPlainTextEdit,
+            QPushButton,
+            QTabWidget,
+            QVBoxLayout,
+            QWidget,
         )
     except ImportError as exc:
         raise SystemExit(TEXT["en"]["python_needed"]) from exc
@@ -161,8 +172,14 @@ def main() -> None:
 
             self.output_row, self.output_path = self._path_row("archive folder", True)
             layout.addWidget(self.output_row)
-            for field in (self.android_db, self.android_root, self.android_key,
-                          self.ios_backup, self.output_path, self.restore_source):
+            for field in (
+                self.android_db,
+                self.android_root,
+                self.android_key,
+                self.ios_backup,
+                self.output_path,
+                self.restore_source,
+            ):
                 field.textChanged.connect(self._invalidate_previews)
             self.tabs.currentChanged.connect(self._invalidate_previews)
 
@@ -177,8 +194,13 @@ def main() -> None:
             self.restore_preview_button.clicked.connect(lambda: self._run_restore(True))
             self.restore_run_button.clicked.connect(lambda: self._run_restore(False))
             self.viewer_button.clicked.connect(self._open_viewer)
-            for button in (self.preview_button, self.run_button, self.restore_preview_button,
-                           self.restore_run_button, self.viewer_button):
+            for button in (
+                self.preview_button,
+                self.run_button,
+                self.restore_preview_button,
+                self.restore_run_button,
+                self.viewer_button,
+            ):
                 actions.addWidget(button)
             layout.addLayout(actions)
 
@@ -260,9 +282,13 @@ def main() -> None:
             self.ios_backup.setPlaceholderText(self.tr("ios_backup"))
             self.output_path.setPlaceholderText(self.tr("archive"))
             self.restore_source.setPlaceholderText(self.tr("restore_source"))
-            for row in (self.android_db.parentWidget(), self.android_root.parentWidget(),
-                        self.ios_backup.parentWidget(), self.output_path.parentWidget(),
-                        self.restore_source.parentWidget()):
+            for row in (
+                self.android_db.parentWidget(),
+                self.android_root.parentWidget(),
+                self.ios_backup.parentWidget(),
+                self.output_path.parentWidget(),
+                self.restore_source.parentWidget(),
+            ):
                 button = row.findChild(QPushButton)
                 if button:
                     button.setText(self.tr("choose"))
@@ -275,8 +301,11 @@ def main() -> None:
             self.viewer_button.setText(self.tr("viewer"))
             self.status.setText(self.tr("ready"))
             self.log.setPlaceholderText(self.tr("log_hint"))
-            self.setLayoutDirection(Qt.LayoutDirection.RightToLeft if self.language == "fa"
-                                    else Qt.LayoutDirection.LeftToRight)
+            self.setLayoutDirection(
+                Qt.LayoutDirection.RightToLeft
+                if self.language == "fa"
+                else Qt.LayoutDirection.LeftToRight
+            )
 
         def _change_language(self, _index: int):
             self.language = self.language_combo.currentData()
@@ -323,11 +352,17 @@ def main() -> None:
             if self.process.state() != QProcess.ProcessState.NotRunning:
                 return
             platform = "android" if self.tabs.currentIndex() == 0 else "ios"
-            source = self.android_db.text().strip() if platform == "android" else self.ios_backup.text().strip()
+            source = (
+                self.android_db.text().strip()
+                if platform == "android"
+                else self.ios_backup.text().strip()
+            )
             output = self.output_path.text().strip()
             try:
                 args = build_archiver_args(
-                    platform, source, output,
+                    platform,
+                    source,
+                    output,
                     e2e_key=self.android_key.text() if platform == "android" else "",
                     wa_root=self.android_root.text() if platform == "android" else "",
                     dry_run=dry_run,
@@ -339,12 +374,18 @@ def main() -> None:
             if not valid:
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
-            if platform == "android" and self.android_root.text().strip() and not Path(self.android_root.text().strip()).is_dir():
+            if (
+                platform == "android"
+                and self.android_root.text().strip()
+                and not Path(self.android_root.text().strip()).is_dir()
+            ):
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
             if not dry_run:
                 answer = QMessageBox.question(
-                    self, self.tr("backup_title"), self.tr("confirm_backup"),
+                    self,
+                    self.tr("backup_title"),
+                    self.tr("confirm_backup"),
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                     QMessageBox.StandardButton.No,
                 )
@@ -361,14 +402,18 @@ def main() -> None:
             except ValueError as exc:
                 QMessageBox.warning(self, self.tr("missing"), str(exc))
                 return
-            if (not Path(archive).is_dir()
-                    or not (Path(archive) / ".wa_media_archiver.db").is_file()
-                    or not (Path(archive) / "Whatsapp Databases" / "msgstore.db").is_file()):
+            if (
+                not Path(archive).is_dir()
+                or not (Path(archive) / ".wa_media_archiver.db").is_file()
+                or not (Path(archive) / "Whatsapp Databases" / "msgstore.db").is_file()
+            ):
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
             if not dry_run:
                 answer = QMessageBox.question(
-                    self, self.tr("restore_title"), self.tr("confirm_restore"),
+                    self,
+                    self.tr("restore_title"),
+                    self.tr("confirm_restore"),
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                     QMessageBox.StandardButton.No,
                 )
@@ -392,7 +437,11 @@ def main() -> None:
             self._set_busy(False)
             self.status.setText(self.tr("done") if exit_code == 0 else self.tr("failed"))
             if exit_code == 0:
-                message = self.tr("restore_done") if self._last_action == "restore" and not self._last_run_was_dry_run else self.tr("done")
+                message = (
+                    self.tr("restore_done")
+                    if self._last_action == "restore" and not self._last_run_was_dry_run
+                    else self.tr("done")
+                )
                 QMessageBox.information(self, self.tr("finished"), message)
             else:
                 QMessageBox.warning(self, self.tr("failed"), self.tr("failed"))
