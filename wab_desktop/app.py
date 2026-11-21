@@ -471,7 +471,7 @@ def main() -> None:
                 QMessageBox.warning(self, self.tr("missing"), self.tr("adb_device"))
                 return
             destination = "/sdcard/Download/WhatsApp-Restore-Preview/" + datetime.now().strftime(
-                "%Y%m%d-%H%M%S"
+                "%Y%m%d-%H%M%S-%f"
             )
             answer = QMessageBox.question(
                 self,
