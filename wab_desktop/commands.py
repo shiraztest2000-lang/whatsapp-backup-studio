@@ -20,15 +20,15 @@ def build_archiver_args(
     if platform not in {"android", "ios"}:
         raise ValueError("platform must be 'android' or 'ios'")
     if not source:
-        raise ValueError("مسیر فایل/پوشه بکاپ را انتخاب کنید.")
+        raise ValueError("Select a backup source.")
     if not output:
-        raise ValueError("مسیر پوشه خروجی را انتخاب کنید.")
+        raise ValueError("Select an output folder.")
 
-    args = ["-m", "wab_archiver", "archive"]
+    args = ["archive"]
     if platform == "android":
         key = e2e_key.strip()
         if not re.fullmatch(r"[0-9a-fA-F]{64}", key):
-            raise ValueError("کلید بکاپ اندروید باید دقیقاً ۶۴ رقم هگزادسیمال باشد.")
+            raise ValueError("The Android encryption key must be exactly 64 hexadecimal characters.")
         args.extend(["--msgstore", source, "--e2e-key", key])
         if wa_root.strip():
             args.extend(["--wa-root", wa_root.strip()])
@@ -36,6 +36,17 @@ def build_archiver_args(
         args.extend(["--ios-backup", source])
 
     args.extend(["--output", output])
+    if dry_run:
+        args.append("--dry-run")
+    return args
+
+
+def build_restore_args(archive_path: str, *, dry_run: bool = True) -> list[str]:
+    """Build argv for the upstream Android media restore command."""
+    archive = archive_path.strip()
+    if not archive:
+        raise ValueError("Select an archive folder.")
+    args = ["restore", "--output", archive]
     if dry_run:
         args.append("--dry-run")
     return args
