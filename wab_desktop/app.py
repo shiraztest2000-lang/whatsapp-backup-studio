@@ -11,7 +11,8 @@ from .commands import build_archiver_args
 
 def main() -> None:
     try:
-        from PySide6.QtCore import QProcess
+        from PySide6.QtCore import QProcess, Qt
+        from PySide6.QtGui import QTextCursor
         from PySide6.QtWidgets import (
             QApplication,
             QFileDialog,
@@ -38,7 +39,7 @@ def main() -> None:
             super().__init__()
             self.setWindowTitle("WhatsApp Backup Studio")
             self.resize(900, 680)
-            self.setLayoutDirection(2)  # Qt.RightToLeft
+            self.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
             self.process = QProcess(self)
             self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
             self.process.readyReadStandardOutput.connect(self._read_output)
@@ -190,7 +191,7 @@ def main() -> None:
         def _read_output(self) -> None:
             raw = bytes(self.process.readAllStandardOutput()).decode("utf-8", errors="replace")
             if raw:
-                self.log.moveCursor(self.log.textCursor().MoveOperation.End)
+                self.log.moveCursor(QTextCursor.MoveOperation.End)
                 self.log.insertPlainText(raw)
                 self.log.ensureCursorVisible()
 
@@ -216,7 +217,8 @@ def main() -> None:
             if not archive or not Path(archive).is_dir():
                 QMessageBox.warning(self, "آرشیو پیدا نشد", "ابتدا پوشه آرشیو موجود را انتخاب کنید.")
                 return
-            ok = QProcess.startDetached(sys.executable, ["-m", "wab_viewer", archive])
+            result = QProcess.startDetached(sys.executable, ["-m", "wab_viewer", archive])
+            ok = result[0] if isinstance(result, tuple) else result
             if not ok:
                 QMessageBox.warning(self, "خطا", "اجرای نمایشگر گفتگوها ممکن نشد.")
 
