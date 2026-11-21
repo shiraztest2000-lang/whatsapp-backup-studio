@@ -67,7 +67,13 @@ def main() -> None:
             layout.addWidget(self.tabs)
             self.output_row, self.output_path = self._path_row("پوشه مقصد آرشیو", True)
             layout.addWidget(self.output_row)
-            for field in (self.android_db, self.android_root, self.android_key, self.ios_backup, self.output_path):
+            for field in (
+                self.android_db,
+                self.android_root,
+                self.android_key,
+                self.ios_backup,
+                self.output_path,
+            ):
                 field.textChanged.connect(self._invalidate_preview)
             self.tabs.currentChanged.connect(self._invalidate_preview)
 
