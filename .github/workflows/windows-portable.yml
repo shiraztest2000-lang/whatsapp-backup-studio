@@ -31,8 +31,10 @@ jobs:
         run: ruff format --check .
       - name: Ruff lint
         run: ruff check .
-      - name: Unit tests
-        run: pytest tests/ -v
+      - name: Compile desktop package
+        run: python -m compileall -q wab_desktop
+      - name: Desktop command tests
+        run: pytest tests/test_desktop_commands.py -v
 
   portable:
     name: Build portable Windows bundle
