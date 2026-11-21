@@ -1,0 +1,81 @@
+name: Windows Portable Build
+
+on:
+  push:
+    branches:
+      - feature/windows-desktop-app
+    paths:
+      - "**.py"
+      - "pyproject.toml"
+      - "wab_desktop/**"
+      - ".github/workflows/windows-portable.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Test and lint
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install project and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[desktop,test,lint]"
+      - name: Ruff format
+        run: ruff format --check .
+      - name: Ruff lint
+        run: ruff check .
+      - name: Unit tests
+        run: pytest tests/ -v
+
+  portable:
+    name: Build portable Windows bundle
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install application and packager
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[desktop]" pyinstaller
+      - name: Build desktop application
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onedir --windowed --name WhatsAppBackupStudio --distpath dist/portable --workpath build/gui desktop_entry.py --collect-all wab_desktop --collect-all PySide6
+      - name: Build archiver helper
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onedir --name wab-archiver --distpath dist/portable --workpath build/archiver archiver_entry.py --collect-all wab_archiver --collect-all shared --collect-all wa_crypt_tools --collect-all iphone_backup_decrypt --collect-all cryptography --collect-all tzdata
+      - name: Build viewer helper
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onedir --name wab-viewer --distpath dist/portable --workpath build/viewer viewer_entry.py --collect-all wab_viewer --collect-all shared --collect-all flask --collect-all werkzeug --collect-all jinja2
+      - name: Assemble portable package
+        shell: pwsh
+        run: |
+          Copy-Item PORTABLE_README.md dist/portable/PORTABLE_README.md
+          Compress-Archive -Path dist/portable/WhatsAppBackupStudio,dist/portable/wab-archiver,dist/portable/wab-viewer,dist/portable/PORTABLE_README.md -DestinationPath dist/WhatsAppBackupStudio-Windows-Portable.zip -CompressionLevel Optimal
+      - name: Smoke test packaged command-line helpers
+        shell: pwsh
+        run: |
+          & dist/portable/wab-archiver/wab-archiver.exe --help
+          if ($LASTEXITCODE -ne 0) { throw "Archiver helper smoke test failed" }
+          & dist/portable/wab-viewer/wab-viewer.exe --help
+          if ($LASTEXITCODE -ne 0) { throw "Viewer helper smoke test failed" }
+          if (!(Test-Path dist/portable/WhatsAppBackupStudio/WhatsAppBackupStudio.exe)) { throw "Desktop executable missing" }
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: WhatsAppBackupStudio-Windows-Portable
+          path: dist/WhatsAppBackupStudio-Windows-Portable.zip
+          if-no-files-found: error
+          retention-days: 30
