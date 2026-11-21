@@ -15,8 +15,9 @@ Keep the entire extracted folder structure together. The archiver and viewer hel
 
 - Android: archive an encrypted msgstore database and an optional local WhatsApp media folder.
 - iPhone/iOS: read a local Finder / Apple Devices / iTunes backup.
-- Android restore: reconstructs the Media folder and database inside an existing archive. The upstream restore command does not write into a live phone.
-- The app does not inject a plaintext database into an installed WhatsApp app. Review restored files and transfer media manually using the supported Android file-transfer workflow.
+- Android restore: reconstructs the Media folder and database inside an existing archive.
+- The bundled ADB transfer sends restored media to a timestamped staging folder under Android Downloads. It does not overwrite the live WhatsApp media folder; review and move files manually on the phone.
+- The app does not inject a plaintext database into an installed WhatsApp app.
 
 ## Privacy and safety
 
