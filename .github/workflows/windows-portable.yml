@@ -75,6 +75,7 @@ jobs:
         shell: pwsh
         run: |
           $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_DEBUG_PLUGINS = "1"
           & dist/portable/WhatsAppBackupStudio/WhatsAppBackupStudio.exe --self-test
           if ($LASTEXITCODE -ne 0) {
             if (Test-Path desktop-self-test.log) { Get-Content desktop-self-test.log }
