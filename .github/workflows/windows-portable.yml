@@ -85,8 +85,8 @@ jobs:
       - name: Assemble portable package
         shell: pwsh
         run: |
+          Remove-Item dist/portable/WhatsAppBackupStudioSmoke -Recurse -Force
           Copy-Item PORTABLE_README.md dist/portable/PORTABLE_README.md
-          Compress-Archive -Path dist/portable/WhatsAppBackupStudio,dist/portable/wab-archiver,dist/portable/wab-viewer,dist/portable/platform-tools,dist/portable/PORTABLE_README.md -DestinationPath dist/WhatsAppBackupStudio-Windows-Portable.zip -CompressionLevel Optimal
       - name: Smoke test packaged command-line helpers
         shell: pwsh
         run: |
@@ -101,6 +101,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WhatsAppBackupStudio-Windows-Portable
-          path: dist/WhatsAppBackupStudio-Windows-Portable.zip
+          path: dist/portable/
           if-no-files-found: error
           retention-days: 30
