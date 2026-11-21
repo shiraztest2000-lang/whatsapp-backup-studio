@@ -39,6 +39,8 @@ def main() -> None:
             self.setWindowTitle("WhatsApp Backup Studio")
             self.resize(900, 680)
             self.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+            self.preview_completed = False
+            self._last_run_was_dry_run = False
             self.process = QProcess(self)
             self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
             self.process.readyReadStandardOutput.connect(self._read_output)
@@ -51,8 +53,8 @@ def main() -> None:
             heading.setStyleSheet("font-size: 22px; font-weight: 700; padding: 8px;")
             layout.addWidget(heading)
             note = QLabel(
-                "پردازش روی همین رایانه انجام می‌شود. ابتدا پیش‌نمایش را اجرا کنید؛ "
-                "برای ساخت آرشیو، اجرای واقعی را جداگانه تأیید کنید."
+                "پردازش روی همین رایانه و روی نسخه پشتیبان انجام می‌شود، نه فایل زنده دستگاه. "
+                "ابتدا پیش‌نمایش را اجرا کنید؛ سپس اجرای واقعی را جداگانه تأیید کنید."
             )
             note.setWordWrap(True)
             layout.addWidget(note)
@@ -65,6 +67,9 @@ def main() -> None:
             layout.addWidget(self.tabs)
             self.output_row, self.output_path = self._path_row("پوشه مقصد آرشیو", True)
             layout.addWidget(self.output_row)
+            for field in (self.android_db, self.android_root, self.android_key, self.ios_backup, self.output_path):
+                field.textChanged.connect(self._invalidate_preview)
+            self.tabs.currentChanged.connect(self._invalidate_preview)
 
             actions = QHBoxLayout()
             self.preview_button = QPushButton("۱. پیش‌نمایش امن (Dry Run)")
@@ -116,7 +121,7 @@ def main() -> None:
             form.addRow("پوشه رسانه (اختیاری):", row)
             self.android_key = QLineEdit()
             self.android_key.setEchoMode(QLineEdit.EchoMode.Password)
-            self.android_key.setPlaceholderText("کلید ۶۴ رقمی بکاپ؛ ذخیره نمی‌شود")
+            self.android_key.setPlaceholderText("کلید ۶۴ کاراکتری هگزادسیمال؛ ذخیره نمی‌شود")
             form.addRow("کلید رمزگشایی:", self.android_key)
             return page
 
@@ -174,6 +179,7 @@ def main() -> None:
 
             self.log.clear()
             self.status.setText("در حال اجرا…")
+            self._last_run_was_dry_run = dry_run
             self._set_busy(True)
             # No shell is used. The encryption key is never written to the log or a config file.
             self.process.start(sys.executable, args)
@@ -186,6 +192,8 @@ def main() -> None:
                 self.log.ensureCursorVisible()
 
         def _finished(self, exit_code: int, _exit_status: object) -> None:
+            if exit_code == 0:
+                self.preview_completed = self._last_run_was_dry_run
             self._set_busy(False)
             self.status.setText(
                 "پایان موفق" if exit_code == 0 else f"پایان با خطا (کد {exit_code})"
@@ -204,9 +212,14 @@ def main() -> None:
                 "خطا در راه‌اندازی ابزار. نصب بودن وابستگی‌ها و Python را بررسی کنید."
             )
 
+        def _invalidate_preview(self, *_args: object) -> None:
+            self.preview_completed = False
+            if self.process.state() == QProcess.ProcessState.NotRunning:
+                self.run_button.setEnabled(False)
+
         def _set_busy(self, busy: bool) -> None:
             self.preview_button.setEnabled(not busy)
-            self.run_button.setEnabled(not busy)
+            self.run_button.setEnabled(not busy and self.preview_completed)
 
         def _open_viewer(self) -> None:
             archive = self._make_output()
