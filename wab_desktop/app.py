@@ -612,8 +612,6 @@ def main() -> None:
         from PySide6.QtCore import qInstallMessageHandler
 
         with _diagnostic_log_path().open("w", encoding="utf-8") as log_file:
-            sys.stdout = log_file
-            sys.stderr = log_file
 
             def _log_qt_message(_message_type, _context, message):
                 log_file.write(message + "\\n")
@@ -632,6 +630,8 @@ def main() -> None:
             except BaseException:
                 traceback.print_exc(file=log_file)
                 raise
+            finally:
+                qInstallMessageHandler(None)
         return
 
     app = QApplication(sys.argv)
