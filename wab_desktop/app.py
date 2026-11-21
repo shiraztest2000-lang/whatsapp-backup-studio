@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import shutil
 import subprocess
-import shutil
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -481,7 +479,7 @@ def main() -> None:
             answer = QMessageBox.question(
                 self,
                 self.tr("restore_title"),
-                self.tr("transfer_confirm") + "\\n\\n" + destination,
+                self.tr("transfer_confirm") + "\n\n" + destination,
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )
