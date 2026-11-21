@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import shutil
+import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from .commands import build_archiver_args, build_restore_args
@@ -44,6 +47,11 @@ TEXT = {
         "viewer_missing": "Select an existing archive folder first.",
         "restore_note": "Restore reconstructs the Android Media/ folder and msgstore.db inside the archive. It does not install data into a live phone or restore iOS backups. Copy the resulting Media folder to your phone only after reviewing it.",
         "restore_help": "The upstream restore feature supports Android media reconstruction only. Chat database injection into a live WhatsApp installation is intentionally not automated.",
+        "transfer": "Copy restored media to phone (ADB)",
+        "transfer_confirm": "Copy the restored Media folder to a separate staging folder in Android Downloads? This will not overwrite the live WhatsApp media folder.",
+        "transfer_done": "Media copied to Android Downloads / WhatsApp-Restore-Preview. Review it on the phone, then move files manually if needed.",
+        "adb_missing": "ADB is unavailable. Keep the platform-tools folder beside the portable application, or install Android platform-tools for a development run.",
+        "adb_device": "Connect and authorize exactly one Android phone with USB debugging enabled, then try again.",
         "python_needed": "The desktop interface requires PySide6. Install with: python -m pip install 'whatsapp-backup-tools[desktop]'",
         "process_error": "Could not start the backup tool. Check the portable package files or Python installation.",
         "finished": "Finished",
@@ -87,6 +95,11 @@ TEXT = {
         "viewer_missing": "ابتدا یک پوشه آرشیو موجود انتخاب کنید.",
         "restore_note": "بازگردانی، پوشه Media و فایل msgstore.db را داخل آرشیو بازسازی می‌کند. این عملیات اطلاعات را مستقیماً در گوشی نصب نمی‌کند و بکاپ iOS را بازگردانی نمی‌کند. پس از بررسی، پوشه Media را به گوشی منتقل کنید.",
         "restore_help": "قابلیت اصلی فقط بازسازی رسانه‌های اندروید را پشتیبانی می‌کند. تزریق دیتابیس گفتگو به واتساپ فعال روی گوشی عمداً خودکار نشده است.",
+        "transfer": "انتقال رسانه بازسازی‌شده به گوشی (ADB)",
+        "transfer_confirm": "پوشه Media در یک پوشه موقت و جداگانه در Downloads گوشی کپی شود؟ پوشه رسانه فعال واتساپ بازنویسی نمی‌شود.",
+        "transfer_done": "رسانه‌ها در Downloads / WhatsApp-Restore-Preview گوشی کپی شدند. آن‌ها را در گوشی بررسی و در صورت نیاز دستی منتقل کنید.",
+        "adb_missing": "ADB در دسترس نیست. پوشه platform-tools را کنار برنامه پرتابل نگه دارید یا برای اجرای توسعه، Android platform-tools را نصب کنید.",
+        "adb_device": "دقیقاً یک گوشی اندرویدی را با USB debugging متصل و مجوز اتصال را تأیید کنید، سپس دوباره تلاش کنید.",
         "python_needed": "رابط دسکتاپ به PySide6 نیاز دارد. نصب: python -m pip install 'whatsapp-backup-tools[desktop]'",
         "process_error": "اجرای ابزار ممکن نشد. فایل‌های بسته پرتابل یا نصب Python را بررسی کنید.",
         "finished": "پایان عملیات",
@@ -266,6 +279,9 @@ def main() -> None:
             self.restore_help = QLabel()
             self.restore_help.setWordWrap(True)
             form.addWidget(self.restore_help)
+            self.transfer_button = QPushButton()
+            self.transfer_button.clicked.connect(self._copy_media_to_phone)
+            form.addWidget(self.transfer_button)
             return page
 
         def _translate(self):
@@ -294,6 +310,7 @@ def main() -> None:
                     button.setText(self.tr("choose"))
             self.restore_note.setText(self.tr("restore_note"))
             self.restore_help.setText(self.tr("restore_help"))
+            self.transfer_button.setText(self.tr("transfer"))
             self.preview_button.setText(self.tr("preview"))
             self.run_button.setText(self.tr("run"))
             self.restore_preview_button.setText(self.tr("restore_preview"))
@@ -325,11 +342,13 @@ def main() -> None:
             self.run_button.setVisible(archive_tab)
             self.restore_preview_button.setVisible(restore_tab)
             self.restore_run_button.setVisible(restore_tab)
+            self.transfer_button.setVisible(restore_tab)
             self.viewer_button.setVisible(not busy)
             self.preview_button.setEnabled(not busy)
             self.run_button.setEnabled(not busy and self.preview_completed)
             self.restore_preview_button.setEnabled(not busy)
             self.restore_run_button.setEnabled(not busy and self.restore_preview_completed)
+            self.transfer_button.setEnabled(not busy)
 
         def _start(self, args: list[str], action: str, dry_run: bool):
             if getattr(sys, "frozen", False):
@@ -421,6 +440,66 @@ def main() -> None:
                     return
             self._start(args, "restore", dry_run)
 
+        def _copy_media_to_phone(self):
+            archive = self.restore_source.text().strip()
+            media = Path(archive) / "Media"
+            if not media.is_dir():
+                QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
+                return
+            if getattr(sys, "frozen", False):
+                adb_path = Path(sys.executable).resolve().parent.parent / "platform-tools" / "adb.exe"
+                adb = str(adb_path) if adb_path.is_file() else None
+            else:
+                adb = shutil.which("adb")
+            if not adb:
+                QMessageBox.warning(self, self.tr("missing"), self.tr("adb_missing"))
+                return
+            try:
+                completed = subprocess.run(
+                    [adb, "devices"],
+                    capture_output=True,
+                    text=True,
+                    timeout=12,
+                    check=True,
+                    creationflags=(subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0),
+                )
+            except (OSError, subprocess.SubprocessError):
+                QMessageBox.warning(self, self.tr("missing"), self.tr("adb_device"))
+                return
+            devices = [
+                line.split()[0]
+                for line in completed.stdout.splitlines()[1:]
+                if len(line.split()) >= 2 and line.split()[1] == "device"
+            ]
+            if len(devices) != 1:
+                QMessageBox.warning(self, self.tr("missing"), self.tr("adb_device"))
+                return
+            destination = (
+                "/sdcard/Download/WhatsApp-Restore-Preview/"
+                + datetime.now().strftime("%Y%m%d-%H%M%S")
+            )
+            answer = QMessageBox.question(
+                self,
+                self.tr("restore_title"),
+                self.tr("transfer_confirm") + "\\n\\n" + destination,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+            self._adb_program = adb
+            self._adb_serial = devices[0]
+            self._adb_media = str(media)
+            self._adb_destination = destination
+            self._last_action = "adb_mkdir"
+            self.log.clear()
+            self.status.setText(self.tr("running"))
+            self._set_busy(True)
+            self.process.start(
+                adb,
+                ["-s", self._adb_serial, "shell", "mkdir", "-p", destination],
+            )
+
         def _read_output(self):
             raw = bytes(self.process.readAllStandardOutput()).decode("utf-8", errors="replace")
             if raw:
@@ -429,6 +508,28 @@ def main() -> None:
                 self.log.ensureCursorVisible()
 
         def _finished(self, exit_code: int, _exit_status):
+            if self._last_action == "adb_mkdir" and exit_code == 0:
+                self._last_action = "adb_push"
+                self.process.start(
+                    self._adb_program,
+                    [
+                        "-s",
+                        self._adb_serial,
+                        "push",
+                        self._adb_media,
+                        self._adb_destination + "/",
+                    ],
+                )
+                return
+            if self._last_action == "adb_push":
+                self._set_busy(False)
+                if exit_code == 0:
+                    self.status.setText(self.tr("done"))
+                    QMessageBox.information(self, self.tr("finished"), self.tr("transfer_done"))
+                else:
+                    self.status.setText(self.tr("failed"))
+                    QMessageBox.warning(self, self.tr("failed"), self.tr("failed"))
+                return
             if exit_code == 0:
                 if self._last_action == "archive":
                     self.preview_completed = self._last_run_was_dry_run
