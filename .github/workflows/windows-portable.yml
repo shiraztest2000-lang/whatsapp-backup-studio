@@ -78,6 +78,9 @@ jobs:
           $env:QT_DEBUG_PLUGINS = "1"
           & dist/portable/WhatsAppBackupStudio/WhatsAppBackupStudio.exe --self-test
           if ($LASTEXITCODE -ne 0) {
+            if (Test-Path dist/portable/WhatsAppBackupStudio/desktop-self-test.log) {
+              Get-Content dist/portable/WhatsAppBackupStudio/desktop-self-test.log
+            }
             if (Test-Path desktop-self-test.log) { Get-Content desktop-self-test.log }
             throw "Desktop UI smoke test failed"
           }
