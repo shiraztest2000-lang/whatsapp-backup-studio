@@ -28,7 +28,9 @@ def build_archiver_args(
     if platform == "android":
         key = e2e_key.strip()
         if not re.fullmatch(r"[0-9a-fA-F]{64}", key):
-            raise ValueError("The Android encryption key must be exactly 64 hexadecimal characters.")
+            raise ValueError(
+                "The Android encryption key must be exactly 64 hexadecimal characters."
+            )
         args.extend(["--msgstore", source, "--e2e-key", key])
         if wa_root.strip():
             args.extend(["--wa-root", wa_root.strip()])
