@@ -445,7 +445,9 @@ def main() -> None:
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
             if getattr(sys, "frozen", False):
-                adb_path = Path(sys.executable).resolve().parent.parent / "platform-tools" / "adb.exe"
+                adb_path = (
+                    Path(sys.executable).resolve().parent.parent / "platform-tools" / "adb.exe"
+                )
                 adb = str(adb_path) if adb_path.is_file() else None
             else:
                 adb = shutil.which("adb")
@@ -472,9 +474,8 @@ def main() -> None:
             if len(devices) != 1:
                 QMessageBox.warning(self, self.tr("missing"), self.tr("adb_device"))
                 return
-            destination = (
-                "/sdcard/Download/WhatsApp-Restore-Preview/"
-                + datetime.now().strftime("%Y%m%d-%H%M%S")
+            destination = "/sdcard/Download/WhatsApp-Restore-Preview/" + datetime.now().strftime(
+                "%Y%m%d-%H%M%S"
             )
             answer = QMessageBox.question(
                 self,
