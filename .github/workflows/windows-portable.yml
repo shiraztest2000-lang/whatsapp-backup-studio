@@ -54,11 +54,11 @@ jobs:
       - name: Build archiver helper
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onedir --name wab-archiver --distpath dist/portable --workpath build/archiver archiver_entry.py --collect-all wab_archiver --collect-all shared --collect-all wa_crypt_tools --collect-all iphone_backup_decrypt --collect-all cryptography --collect-all tzdata
+          python -m PyInstaller --noconfirm --clean --onedir --name wab-archiver --distpath dist/portable --workpath build/archiver archiver_entry.py --copy-metadata whatsapp-backup-tools --collect-all wab_archiver --collect-all shared --collect-all wa_crypt_tools --collect-all iphone_backup_decrypt --collect-all cryptography --collect-all tzdata
       - name: Build viewer helper
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onedir --name wab-viewer --distpath dist/portable --workpath build/viewer viewer_entry.py --collect-all wab_viewer --collect-all shared --collect-all flask --collect-all werkzeug --collect-all jinja2
+          python -m PyInstaller --noconfirm --clean --onedir --name wab-viewer --distpath dist/portable --workpath build/viewer viewer_entry.py --copy-metadata whatsapp-backup-tools --collect-all wab_viewer --collect-all shared --collect-all flask --collect-all werkzeug --collect-all jinja2
       - name: Assemble portable package
         shell: pwsh
         run: |
