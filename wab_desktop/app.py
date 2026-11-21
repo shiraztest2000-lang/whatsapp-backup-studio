@@ -63,6 +63,8 @@ def main() -> None:
             self.tabs.addTab(self.android, "اندروید")
             self.tabs.addTab(self.ios, "آیفون / iOS")
             layout.addWidget(self.tabs)
+            self.output_row, self.output_path = self._path_row("پوشه مقصد آرشیو", True)
+            layout.addWidget(self.output_row)
 
             actions = QHBoxLayout()
             self.preview_button = QPushButton("۱. پیش‌نمایش امن (Dry Run)")
@@ -128,9 +130,6 @@ def main() -> None:
             return page
 
         def _make_output(self) -> str:
-            if not hasattr(self, "output_row"):
-                self.output_row, self.output_path = self._path_row("پوشه مقصد آرشیو", True)
-                self.centralWidget().layout().insertWidget(2, self.output_row)
             return self.output_path.text().strip()
 
         def _run_archive(self, dry_run: bool) -> None:
