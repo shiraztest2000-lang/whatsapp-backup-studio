@@ -596,9 +596,17 @@ def main() -> None:
     if "--self-test" in sys.argv:
         import traceback
 
+        from PySide6.QtCore import qInstallMessageHandler
+
         with Path("desktop-self-test.log").open("w", encoding="utf-8") as log_file:
             sys.stdout = log_file
             sys.stderr = log_file
+
+            def _log_qt_message(_message_type, _context, message):
+                log_file.write(message + "\\n")
+                log_file.flush()
+
+            qInstallMessageHandler(_log_qt_message)
             try:
                 app = QApplication([])
                 window = StudioWindow()
@@ -608,7 +616,7 @@ def main() -> None:
                 assert window.language == "fa"
                 window.language_combo.setCurrentIndex(0)
                 assert window.language == "en"
-            except Exception:
+            except BaseException:
                 traceback.print_exc(file=log_file)
                 raise
         return
