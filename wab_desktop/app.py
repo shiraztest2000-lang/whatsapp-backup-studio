@@ -122,6 +122,12 @@ TEXT = {
 }
 
 
+def _diagnostic_log_path() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent / "desktop-self-test.log"
+    return Path("desktop-self-test.log")
+
+
 def _frozen_helper(name: str) -> str | None:
     if not getattr(sys, "frozen", False):
         return None
@@ -153,7 +159,7 @@ def main() -> None:
         if "--self-test" in sys.argv:
             import traceback
 
-            Path("desktop-self-test.log").write_text(
+            _diagnostic_log_path().write_text(
                 traceback.format_exc(),
                 encoding="utf-8",
             )
@@ -605,7 +611,7 @@ def main() -> None:
 
         from PySide6.QtCore import qInstallMessageHandler
 
-        with Path("desktop-self-test.log").open("w", encoding="utf-8") as log_file:
+        with _diagnostic_log_path().open("w", encoding="utf-8") as log_file:
             sys.stdout = log_file
             sys.stderr = log_file
 
