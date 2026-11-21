@@ -7,24 +7,20 @@ def test_android_args_include_dry_run_and_optional_media_root() -> None:
     from wab_desktop.commands import build_archiver_args
 
     args = build_archiver_args(
-        "android",
-        "C:/Backup/msgstore.db.crypt15",
-        "C:/Archive",
-        e2e_key="a" * 64,
-        wa_root="C:/Backup/WhatsApp",
+        "android", "C:/Backup/msgstore.db.crypt15", "C:/Archive",
+        e2e_key="a" * 64, wa_root="C:/Backup/WhatsApp",
     )
-    assert args[:3] == ["-m", "wab_archiver", "archive"]
-    assert "--msgstore" in args
+    assert args[:2] == ["archive", "--msgstore"]
     assert "--e2e-key" in args
     assert "--wa-root" in args
     assert args[-1] == "--dry-run"
 
 
-def test_real_run_omits_dry_run_flag() -> None:
+def test_ios_args_are_supported_without_android_key() -> None:
     from wab_desktop.commands import build_archiver_args
 
     args = build_archiver_args("ios", "C:/iPhoneBackup", "C:/Archive", dry_run=False)
-    assert "--ios-backup" in args
+    assert args[:2] == ["archive", "--ios-backup"]
     assert "--dry-run" not in args
 
 
@@ -45,3 +41,24 @@ def test_rejects_missing_paths_and_unknown_platform() -> None:
         build_archiver_args("ios", "backup", "")
     with pytest.raises(ValueError):
         build_archiver_args("other", "backup", "archive")
+
+
+def test_restore_args_default_to_dry_run_and_target_archive() -> None:
+    from wab_desktop.commands import build_restore_args
+
+    args = build_restore_args("C:/Archive")
+    assert args == ["restore", "--output", "C:/Archive", "--dry-run"]
+
+
+def test_restore_real_run_requires_explicit_dry_run_false() -> None:
+    from wab_desktop.commands import build_restore_args
+
+    args = build_restore_args("C:/Archive", dry_run=False)
+    assert args == ["restore", "--output", "C:/Archive"]
+
+
+def test_restore_rejects_empty_archive_path() -> None:
+    from wab_desktop.commands import build_restore_args
+
+    with pytest.raises(ValueError):
+        build_restore_args(" ")
