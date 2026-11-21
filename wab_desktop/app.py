@@ -20,7 +20,7 @@ TEXT = {
         "ios": "iPhone / iOS backup",
         "restore": "Restore (Android only)",
         "db": "Encrypted msgstore database",
-        "media": "WhatsApp media folder (optional)",
+        "media": "WhatsApp folder (must contain Media/)",
         "key": "64-character encryption key",
         "ios_backup": "Local iPhone backup folder",
         "archive": "Archive output folder",
@@ -68,7 +68,7 @@ TEXT = {
         "ios": "پشتیبان آیفون / iOS",
         "restore": "بازگردانی (فقط اندروید)",
         "db": "فایل دیتابیس رمزگذاری‌شده msgstore",
-        "media": "پوشه رسانه واتساپ (اختیاری)",
+        "media": "پوشه WhatsApp (باید شامل Media باشد)",
         "key": "کلید رمزگذاری ۶۴ کاراکتری",
         "ios_backup": "پوشه بکاپ محلی آیفون",
         "archive": "پوشه مقصد پشتیبان",
@@ -252,7 +252,7 @@ def main() -> None:
             form = QFormLayout(page)
             row, self.android_db = self._path_row("msgstore.db.crypt14 / crypt15", False)
             form.addRow("", row)
-            row, self.android_root = self._path_row("WhatsApp/Media", True)
+            row, self.android_root = self._path_row("WhatsApp folder containing Media/", True)
             form.addRow("", row)
             self.android_key = QLineEdit()
             self.android_key.setEchoMode(QLineEdit.EchoMode.Password)
@@ -393,8 +393,10 @@ def main() -> None:
                 return
             if (
                 platform == "android"
-                and self.android_root.text().strip()
-                and not Path(self.android_root.text().strip()).is_dir()
+                and (
+                    not self.android_root.text().strip()
+                    or not (Path(self.android_root.text().strip()) / "Media").is_dir()
+                )
             ):
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
