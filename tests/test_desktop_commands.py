@@ -21,9 +21,7 @@ def test_android_args_include_dry_run_and_optional_media_root() -> None:
 
 
 def test_real_run_omits_dry_run_flag() -> None:
-    args = build_archiver_args(
-        "ios", "C:/iPhoneBackup", "C:/Archive", dry_run=False
-    )
+    args = build_archiver_args("ios", "C:/iPhoneBackup", "C:/Archive", dry_run=False)
     assert "--ios-backup" in args
     assert "--dry-run" not in args
 
