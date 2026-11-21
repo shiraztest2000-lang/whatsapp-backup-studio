@@ -285,12 +285,13 @@ def main() -> None:
         def _invalidate_previews(self, *_args):
             self.preview_completed = False
             self.restore_preview_completed = False
-            if self.process.state() == QProcess.ProcessState.NotRunning:
-                self._set_busy(False)
+            self._set_busy(self.process.state() != QProcess.ProcessState.NotRunning)
 
         def _set_busy(self, busy: bool):
             archive_tab = self.tabs.currentIndex() in (0, 1)
             restore_tab = self.tabs.currentIndex() == 2
+            self.tabs.setEnabled(not busy)
+            self.output_path.setEnabled(not busy)
             self.preview_button.setVisible(archive_tab)
             self.run_button.setVisible(archive_tab)
             self.restore_preview_button.setVisible(restore_tab)
@@ -360,7 +361,9 @@ def main() -> None:
             except ValueError as exc:
                 QMessageBox.warning(self, self.tr("missing"), str(exc))
                 return
-            if not Path(archive).is_dir() or not (Path(archive) / ".wa_media_archiver.db").is_file():
+            if (not Path(archive).is_dir()
+                    or not (Path(archive) / ".wa_media_archiver.db").is_file()
+                    or not (Path(archive) / "Whatsapp Databases" / "msgstore.db").is_file()):
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
             if not dry_run:
