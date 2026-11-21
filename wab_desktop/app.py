@@ -571,6 +571,17 @@ def main() -> None:
             if not ok:
                 QMessageBox.warning(self, self.tr("failed"), self.tr("viewer_error"))
 
+    if "--self-test" in sys.argv:
+        app = QApplication([])
+        window = StudioWindow()
+        assert window.language == "en"
+        assert window.tabs.tabText(0) == TEXT["en"]["android"]
+        window.language_combo.setCurrentIndex(1)
+        assert window.language == "fa"
+        window.language_combo.setCurrentIndex(0)
+        assert window.language == "en"
+        return
+
     app = QApplication(sys.argv)
     app.setApplicationName("WhatsApp Backup Studio")
     app.setOrganizationName("ShirazTipsy")
