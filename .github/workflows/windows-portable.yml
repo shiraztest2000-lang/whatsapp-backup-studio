@@ -49,6 +49,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[desktop]" pyinstaller tzdata
+      - name: Build console diagnostic application
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onedir --console --name WhatsAppBackupStudioSmoke --distpath dist/portable --workpath build/smoke desktop_entry.py --hidden-import PySide6.QtCore --hidden-import PySide6.QtGui --hidden-import PySide6.QtWidgets --collect-all wab_desktop --collect-all PySide6 --collect-all shiboken6
+      - name: Smoke test packaged desktop UI
+        shell: pwsh
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_DEBUG_PLUGINS = "1"
+          & dist/portable/WhatsAppBackupStudioSmoke/WhatsAppBackupStudioSmoke.exe --self-test
+          if ($LASTEXITCODE -ne 0) {
+            if (Test-Path dist/portable/WhatsAppBackupStudioSmoke/desktop-self-test.log) {
+              Get-Content dist/portable/WhatsAppBackupStudioSmoke/desktop-self-test.log
+            }
+            throw "Desktop UI smoke test failed"
+          }
       - name: Build desktop application
         shell: pwsh
         run: |
@@ -71,19 +87,6 @@ jobs:
         run: |
           Copy-Item PORTABLE_README.md dist/portable/PORTABLE_README.md
           Compress-Archive -Path dist/portable/WhatsAppBackupStudio,dist/portable/wab-archiver,dist/portable/wab-viewer,dist/portable/platform-tools,dist/portable/PORTABLE_README.md -DestinationPath dist/WhatsAppBackupStudio-Windows-Portable.zip -CompressionLevel Optimal
-      - name: Smoke test packaged desktop UI
-        shell: pwsh
-        run: |
-          $env:QT_QPA_PLATFORM = "offscreen"
-          $env:QT_DEBUG_PLUGINS = "1"
-          & dist/portable/WhatsAppBackupStudio/WhatsAppBackupStudio.exe --self-test
-          if ($LASTEXITCODE -ne 0) {
-            if (Test-Path dist/portable/WhatsAppBackupStudio/desktop-self-test.log) {
-              Get-Content dist/portable/WhatsAppBackupStudio/desktop-self-test.log
-            }
-            if (Test-Path desktop-self-test.log) { Get-Content desktop-self-test.log }
-            throw "Desktop UI smoke test failed"
-          }
       - name: Smoke test packaged command-line helpers
         shell: pwsh
         run: |
