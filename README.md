@@ -142,8 +142,10 @@ After a successful run, the archive is organised into a clean, human-readable hi
 
 ## Windows Desktop Interface
 
-A Persian RTL desktop front end is available as an optional PySide6 application. It wraps the existing
-archiver and viewer without duplicating their backup-processing logic.
+An English-first desktop application with an in-app English / Persian language selector is available
+as an optional PySide6 interface. A portable Windows ZIP build is produced by the
+[Windows Portable Build workflow](https://github.com/shiraztest2000-lang/whatsapp-backup-studio/actions/workflows/windows-portable.yml).
+It wraps the existing archiver and viewer without duplicating their backup-processing logic.
 
 ```powershell
 py -m pip install -e ".[desktop]"
