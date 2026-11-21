@@ -140,6 +140,20 @@ After a successful run, the archive is organised into a clean, human-readable hi
 
 ---
 
+## Windows Desktop Interface
+
+A Persian RTL desktop front end is available as an optional PySide6 application. It wraps the existing
+archiver and viewer without duplicating their backup-processing logic.
+
+```powershell
+py -m pip install -e ".[desktop]"
+py -m wab_desktop
+```
+
+See [Windows Desktop Guide](docs/windows-desktop.md) for setup, workflow, and security notes.
+
+---
+
 ## Installation & Quick Start
 
 To organize and view your WhatsApp data on your computer, the tool needs two things from your phone: your **WhatsApp Database** and your **WhatsApp Media**.
