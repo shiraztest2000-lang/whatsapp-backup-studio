@@ -93,9 +93,7 @@ def main() -> None:
             edit = QLineEdit()
             edit.setPlaceholderText(placeholder)
             button = QPushButton("انتخاب…")
-            button.clicked.connect(
-                lambda: self._choose_path(edit, directory)
-            )
+            button.clicked.connect(lambda: self._choose_path(edit, directory))
             row_layout.addWidget(edit, 1)
             row_layout.addWidget(button)
             return row, edit
@@ -111,13 +109,9 @@ def main() -> None:
         def _make_android_tab(self) -> QWidget:
             page = QWidget()
             form = QFormLayout(page)
-            row, self.android_db = self._path_row(
-                "مسیر msgstore.db.crypt14 / crypt15", False
-            )
+            row, self.android_db = self._path_row("مسیر msgstore.db.crypt14 / crypt15", False)
             form.addRow("فایل دیتابیس رمزگذاری‌شده:", row)
-            row, self.android_root = self._path_row(
-                "پوشه WhatsApp استخراج‌شده (اختیاری)", True
-            )
+            row, self.android_root = self._path_row("پوشه WhatsApp استخراج‌شده (اختیاری)", True)
             form.addRow("پوشه رسانه (اختیاری):", row)
             self.android_key = QLineEdit()
             self.android_key.setEchoMode(QLineEdit.EchoMode.Password)
@@ -136,9 +130,7 @@ def main() -> None:
 
         def _make_output(self) -> str:
             if not hasattr(self, "output_row"):
-                self.output_row, self.output_path = self._path_row(
-                    "پوشه مقصد آرشیو", True
-                )
+                self.output_row, self.output_path = self._path_row("پوشه مقصد آرشیو", True)
                 self.centralWidget().layout().insertWidget(2, self.output_row)
             return self.output_path.text().strip()
 
@@ -197,16 +189,22 @@ def main() -> None:
 
         def _finished(self, exit_code: int, _exit_status: object) -> None:
             self._set_busy(False)
-            self.status.setText("پایان موفق" if exit_code == 0 else f"پایان با خطا (کد {exit_code})")
+            self.status.setText(
+                "پایان موفق" if exit_code == 0 else f"پایان با خطا (کد {exit_code})"
+            )
             if exit_code == 0:
                 QMessageBox.information(self, "پایان عملیات", "عملیات با موفقیت پایان یافت.")
             else:
-                QMessageBox.warning(self, "خطا", "اجرای ابزار با خطا پایان یافت. گزارش را بررسی کنید.")
+                QMessageBox.warning(
+                    self, "خطا", "اجرای ابزار با خطا پایان یافت. گزارش را بررسی کنید."
+                )
 
         def _process_error(self, _error: object) -> None:
             self._set_busy(False)
             self.status.setText("اجرای فرایند ناموفق بود")
-            self.log.appendPlainText("خطا در راه‌اندازی ابزار. نصب بودن وابستگی‌ها و Python را بررسی کنید.")
+            self.log.appendPlainText(
+                "خطا در راه‌اندازی ابزار. نصب بودن وابستگی‌ها و Python را بررسی کنید."
+            )
 
         def _set_busy(self, busy: bool) -> None:
             self.preview_button.setEnabled(not busy)
@@ -215,7 +213,9 @@ def main() -> None:
         def _open_viewer(self) -> None:
             archive = self._make_output()
             if not archive or not Path(archive).is_dir():
-                QMessageBox.warning(self, "آرشیو پیدا نشد", "ابتدا پوشه آرشیو موجود را انتخاب کنید.")
+                QMessageBox.warning(
+                    self, "آرشیو پیدا نشد", "ابتدا پوشه آرشیو موجود را انتخاب کنید."
+                )
                 return
             result = QProcess.startDetached(sys.executable, ["-m", "wab_viewer", archive])
             ok = result[0] if isinstance(result, tuple) else result
