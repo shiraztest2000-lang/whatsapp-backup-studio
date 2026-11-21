@@ -31,9 +31,9 @@ def build_archiver_args(
             raise ValueError(
                 "The Android encryption key must be exactly 64 hexadecimal characters."
             )
-        args.extend(["--msgstore", source, "--e2e-key", key])
-        if wa_root.strip():
-            args.extend(["--wa-root", wa_root.strip()])
+        if not wa_root.strip():
+            raise ValueError("Select the WhatsApp folder containing the Media/ directory.")
+        args.extend(["--msgstore", source, "--e2e-key", key, "--wa-root", wa_root.strip()])
     else:
         args.extend(["--ios-backup", source])
 
