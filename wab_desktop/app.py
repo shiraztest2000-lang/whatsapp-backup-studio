@@ -391,12 +391,9 @@ def main() -> None:
             if not valid:
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
-            if (
-                platform == "android"
-                and (
-                    not self.android_root.text().strip()
-                    or not (Path(self.android_root.text().strip()) / "Media").is_dir()
-                )
+            if platform == "android" and (
+                not self.android_root.text().strip()
+                or not (Path(self.android_root.text().strip()) / "Media").is_dir()
             ):
                 QMessageBox.warning(self, self.tr("missing"), self.tr("not_found"))
                 return
