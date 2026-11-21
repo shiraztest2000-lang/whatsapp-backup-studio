@@ -83,3 +83,15 @@ def test_adb_parser_handles_no_connected_devices() -> None:
     from wab_desktop.commands import parse_authorized_adb_devices
 
     assert parse_authorized_adb_devices("List of devices attached\n") == []
+
+
+def test_android_requires_whatsapp_root_containing_media() -> None:
+    from wab_desktop.commands import build_archiver_args
+
+    with pytest.raises(ValueError, match="containing the Media"):
+        build_archiver_args(
+            "android",
+            "C:/Backup/msgstore.db.crypt15",
+            "C:/Archive",
+            e2e_key="a" * 64,
+        )
