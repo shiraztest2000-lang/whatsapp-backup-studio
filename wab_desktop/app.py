@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from .commands import build_archiver_args, build_restore_args
+from .commands import build_archiver_args, build_restore_args, parse_authorized_adb_devices
 
 TEXT = {
     "en": {
@@ -466,11 +466,7 @@ def main() -> None:
             except (OSError, subprocess.SubprocessError):
                 QMessageBox.warning(self, self.tr("missing"), self.tr("adb_device"))
                 return
-            devices = [
-                line.split()[0]
-                for line in completed.stdout.splitlines()[1:]
-                if len(line.split()) >= 2 and line.split()[1] == "device"
-            ]
+            devices = parse_authorized_adb_devices(completed.stdout)
             if len(devices) != 1:
                 QMessageBox.warning(self, self.tr("missing"), self.tr("adb_device"))
                 return
