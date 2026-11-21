@@ -65,3 +65,21 @@ def test_restore_rejects_empty_archive_path() -> None:
 
     with pytest.raises(ValueError):
         build_restore_args(" ")
+
+
+def test_adb_parser_returns_only_authorized_devices() -> None:
+    from wab_desktop.commands import parse_authorized_adb_devices
+
+    output = (
+        "List of devices attached\\n"
+        "emulator-5554\\tdevice\\n"
+        "phone-unauthorized\\tunauthorized\\n"
+        "phone-offline\\toffline\\n"
+    )
+    assert parse_authorized_adb_devices(output) == ["emulator-5554"]
+
+
+def test_adb_parser_handles_no_connected_devices() -> None:
+    from wab_desktop.commands import parse_authorized_adb_devices
+
+    assert parse_authorized_adb_devices("List of devices attached\\n") == []
