@@ -59,11 +59,16 @@ jobs:
         shell: pwsh
         run: |
           python -m PyInstaller --noconfirm --clean --onedir --name wab-viewer --distpath dist/portable --workpath build/viewer viewer_entry.py --copy-metadata whatsapp-backup-tools --collect-all wab_viewer --collect-all shared --collect-all flask --collect-all werkzeug --collect-all jinja2
+      - name: Download Android platform-tools
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://dl.google.com/android/repository/platform-tools-latest-windows.zip -OutFile platform-tools.zip
+          Expand-Archive -LiteralPath platform-tools.zip -DestinationPath dist/portable -Force
       - name: Assemble portable package
         shell: pwsh
         run: |
           Copy-Item PORTABLE_README.md dist/portable/PORTABLE_README.md
-          Compress-Archive -Path dist/portable/WhatsAppBackupStudio,dist/portable/wab-archiver,dist/portable/wab-viewer,dist/portable/PORTABLE_README.md -DestinationPath dist/WhatsAppBackupStudio-Windows-Portable.zip -CompressionLevel Optimal
+          Compress-Archive -Path dist/portable/WhatsAppBackupStudio,dist/portable/wab-archiver,dist/portable/wab-viewer,dist/portable/platform-tools,dist/portable/PORTABLE_README.md -DestinationPath dist/WhatsAppBackupStudio-Windows-Portable.zip -CompressionLevel Optimal
       - name: Smoke test packaged command-line helpers
         shell: pwsh
         run: |
@@ -72,6 +77,8 @@ jobs:
           & dist/portable/wab-viewer/wab-viewer.exe --help
           if ($LASTEXITCODE -ne 0) { throw "Viewer helper smoke test failed" }
           if (!(Test-Path dist/portable/WhatsAppBackupStudio/WhatsAppBackupStudio.exe)) { throw "Desktop executable missing" }
+          & dist/portable/platform-tools/adb.exe version
+          if ($LASTEXITCODE -ne 0) { throw "ADB helper smoke test failed" }
       - name: Upload portable ZIP
         uses: actions/upload-artifact@v4
         with:
