@@ -594,14 +594,23 @@ def main() -> None:
                 QMessageBox.warning(self, self.tr("failed"), self.tr("viewer_error"))
 
     if "--self-test" in sys.argv:
-        app = QApplication([])
-        window = StudioWindow()
-        assert window.language == "en"
-        assert window.tabs.tabText(0) == TEXT["en"]["android"]
-        window.language_combo.setCurrentIndex(1)
-        assert window.language == "fa"
-        window.language_combo.setCurrentIndex(0)
-        assert window.language == "en"
+        import traceback
+
+        with Path("desktop-self-test.log").open("w", encoding="utf-8") as log_file:
+            sys.stdout = log_file
+            sys.stderr = log_file
+            try:
+                app = QApplication([])
+                window = StudioWindow()
+                assert window.language == "en"
+                assert window.tabs.tabText(0) == TEXT["en"]["android"]
+                window.language_combo.setCurrentIndex(1)
+                assert window.language == "fa"
+                window.language_combo.setCurrentIndex(0)
+                assert window.language == "en"
+            except Exception:
+                traceback.print_exc(file=log_file)
+                raise
         return
 
     app = QApplication(sys.argv)
