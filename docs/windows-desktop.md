@@ -25,7 +25,7 @@ Keep the three application folders together. Do not move the GUI executable out 
 
 ## Restore workflow
 
-The upstream restore command supports Android archives only. It reconstructs the `Media/` tree and `Databases/msgstore.db` locally inside the archive folder. It does not push files to a connected phone or install a database into a live WhatsApp instance. Review the reconstructed media and transfer it to the phone using the normal Android file-transfer process. iOS restore is not supported by the upstream project.
+The upstream restore command supports Android archives only. It reconstructs the `Media/` tree and `Databases/msgstore.db` locally inside the archive folder. The portable package also includes Google's Android platform-tools. After reconstruction, **Copy restored media to phone (ADB)** sends the media into a timestamped staging folder under Android Downloads (`WhatsApp-Restore-Preview`). It does not overwrite the active WhatsApp media folder. Review the files on the phone and move them manually if needed. The chat database is not injected into a live WhatsApp installation, and iOS restore is not supported by the upstream project.
 
 ## Security
 
