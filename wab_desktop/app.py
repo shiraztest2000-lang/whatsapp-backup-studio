@@ -301,7 +301,7 @@ def main() -> None:
             self.restore_preview_button.setEnabled(not busy)
             self.restore_run_button.setEnabled(not busy and self.restore_preview_completed)
 
-        def _start(self, args: list[str], action: str):
+        def _start(self, args: list[str], action: str, dry_run: bool):
             if getattr(sys, "frozen", False):
                 helper = _frozen_helper("wab-archiver")
                 if not helper or not Path(helper).is_file():
@@ -312,6 +312,7 @@ def main() -> None:
             else:
                 program, arguments = sys.executable, ["-m", "wab_archiver", *args]
             self._last_action = action
+            self._last_run_was_dry_run = dry_run
             self.log.clear()
             self.status.setText(self.tr("running"))
             self._set_busy(True)
@@ -348,7 +349,7 @@ def main() -> None:
                 )
                 if answer != QMessageBox.StandardButton.Yes:
                     return
-            self._start(args, "archive")
+            self._start(args, "archive", dry_run)
 
         def _run_restore(self, dry_run: bool):
             if self.process.state() != QProcess.ProcessState.NotRunning:
@@ -370,7 +371,7 @@ def main() -> None:
                 )
                 if answer != QMessageBox.StandardButton.Yes:
                     return
-            self._start(args, "restore")
+            self._start(args, "restore", dry_run)
 
         def _read_output(self):
             raw = bytes(self.process.readAllStandardOutput()).decode("utf-8", errors="replace")
@@ -382,9 +383,9 @@ def main() -> None:
         def _finished(self, exit_code: int, _exit_status):
             if exit_code == 0:
                 if self._last_action == "archive":
-                    self.preview_completed = self._last_run_was_dry_run if hasattr(self, "_last_run_was_dry_run") else False
+                    self.preview_completed = self._last_run_was_dry_run
                 elif self._last_action == "restore":
-                    self.restore_preview_completed = self._last_run_was_dry_run if hasattr(self, "_last_run_was_dry_run") else False
+                    self.restore_preview_completed = self._last_run_was_dry_run
             self._set_busy(False)
             self.status.setText(self.tr("done") if exit_code == 0 else self.tr("failed"))
             if exit_code == 0:
