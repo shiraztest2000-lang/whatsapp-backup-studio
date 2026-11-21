@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
@@ -22,8 +21,8 @@ def main() -> None:
             QLineEdit,
             QMainWindow,
             QMessageBox,
-            QPushButton,
             QPlainTextEdit,
+            QPushButton,
             QTabWidget,
             QVBoxLayout,
             QWidget,
