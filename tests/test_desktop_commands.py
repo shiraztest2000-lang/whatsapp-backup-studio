@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from wab_desktop.commands import build_archiver_args
 
 
