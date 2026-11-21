@@ -52,3 +52,12 @@ def build_restore_args(archive_path: str, *, dry_run: bool = True) -> list[str]:
     if dry_run:
         args.append("--dry-run")
     return args
+
+
+def parse_authorized_adb_devices(output: str) -> list[str]:
+    """Return serials for ADB devices in the authorized 'device' state."""
+    return [
+        fields[0]
+        for line in output.splitlines()[1:]
+        if len(fields := line.split()) >= 2 and fields[1] == "device"
+    ]
